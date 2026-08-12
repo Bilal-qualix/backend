@@ -1,0 +1,19 @@
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  // NestJS compiles to CommonJS; the generator's default ESM output breaks at runtime.
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+model File {
+  id           String   @id @default(uuid())
+  originalName String
+  storedName   String   // the uuid-based filename on disk (id + extension)
+  mimeType     String
+  size         Int
+  uploadedAt   DateTime @default(now())
+}

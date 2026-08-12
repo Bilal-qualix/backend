@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  // prisma.config.ts is excluded so `src` stays the only compilation root — otherwise
+  // tsc widens rootDir to the project root and emits dist/src/main.js instead of
+  // dist/main.js, which breaks `npm run start:prod` (`node dist/main`).
+  "exclude": ["node_modules", "test", "dist", "prisma.config.ts", "**/*spec.ts"]
+}
