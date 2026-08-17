@@ -1,0 +1,1302 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DocumentFormatExtraction",
+  "description": "What to extract from an authored report so documents in the same format can be produced later. Domain-agnostic: enums stay open where specialties differ, and domain_specific_conventions captures anything the fixed fields miss.",
+  "type": "object",
+  "required": [
+    "document_class",
+    "sections",
+    "layout",
+    "prose",
+    "lexicon",
+    "quantitative",
+    "content_rules",
+    "conclusion",
+    "fixed_blocks",
+    "domain_specific_conventions",
+    "full_text",
+    "case_character"
+  ],
+  "properties": {
+    "document_class": {
+      "type": "object",
+      "description": "Format conventions cluster by class far more than by specialty. A radiology CT report and an ultrasound report resemble each other more than either resembles a discharge summary.",
+      "properties": {
+        "class": {
+          "enum": [
+            "imaging_interpretation",
+            "diagnostic_study_interpretation",
+            "laboratory_result",
+            "pathology_report",
+            "procedure_note",
+            "operative_note",
+            "clinical_consultation",
+            "progress_note",
+            "discharge_summary",
+            "screening_report",
+            "administrative_letter",
+            "other"
+          ]
+        },
+        "specialty": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "examples": [
+            "radiology",
+            "pathology",
+            "cardiology",
+            "dermatology",
+            "psychiatry",
+            "ophthalmology",
+            "oncology",
+            "neurology",
+            "obstetrics"
+          ]
+        },
+        "modality_or_procedure": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "examples": [
+            "CT abdomen with contrast",
+            "core needle biopsy",
+            "colonoscopy",
+            "polysomnography",
+            "neuropsychological battery"
+          ]
+        },
+        "audience": {
+          "enum": [
+            "referring_clinician",
+            "patient",
+            "multidisciplinary_team",
+            "insurer_or_legal",
+            "registry",
+            "mixed"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "class",
+        "specialty",
+        "modality_or_procedure",
+        "audience"
+      ]
+    },
+    "sections": {
+      "type": "array",
+      "description": "In document order. Use canonical keys so sections are comparable across authors and specialties; label_verbatim preserves the author's actual wording.",
+      "items": {
+        "type": "object",
+        "required": [
+          "key",
+          "label_verbatim",
+          "order",
+          "content_mode",
+          "word_count",
+          "sentence_count",
+          "internal_order",
+          "internal_order_basis",
+          "subsections",
+          "text_verbatim",
+          "was_applicable"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "examples": [
+              "identification",
+              "reason_for_encounter",
+              "clinical_history",
+              "technique_or_method",
+              "specimen_description",
+              "observations",
+              "results",
+              "interpretation",
+              "comparison",
+              "limitations",
+              "conclusion",
+              "recommendations",
+              "attestation",
+              "signature"
+            ]
+          },
+          "label_verbatim": {
+            "type": "string",
+            "examples": [
+              "CLINICAL INDICATION:",
+              "Gross Description",
+              "Assessment & Plan",
+              "MICROSCOPIC"
+            ]
+          },
+          "order": {
+            "type": "integer"
+          },
+          "content_mode": {
+            "enum": [
+              "prose",
+              "bullets",
+              "numbered",
+              "key_value",
+              "table",
+              "synoptic_template",
+              "mixed"
+            ]
+          },
+          "word_count": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "sentence_count": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "internal_order": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "description": "Topic sequence within the section, as written \u2014 anatomic, systems-based, chronological, or template-fixed.",
+            "items": {
+              "type": "string"
+            },
+            "examples": [
+              [
+                "liver",
+                "gallbladder",
+                "pancreas",
+                "spleen",
+                "kidneys",
+                "bowel",
+                "vasculature"
+              ],
+              [
+                "appearance",
+                "behavior",
+                "mood",
+                "affect",
+                "thought process",
+                "insight"
+              ]
+            ]
+          },
+          "internal_order_basis": {
+            "enum": [
+              "anatomic",
+              "systems",
+              "chronological",
+              "priority",
+              "template_fixed",
+              "none"
+            ]
+          },
+          "subsections": {
+            "type": [
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "object"
+            }
+          },
+          "text_verbatim": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "was_applicable": {
+            "type": [
+              "boolean",
+              "null"
+            ],
+            "description": "For expected-but-absent sections: could it have applied here? A missing Comparison section on a first-ever study is circumstance, not style."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "layout": {
+      "type": "object",
+      "properties": {
+        "heading_case": {
+          "enum": [
+            "UPPERCASE",
+            "Title Case",
+            "Sentence case",
+            "lowercase"
+          ]
+        },
+        "heading_decoration": {
+          "enum": [
+            "bold",
+            "bold_colon",
+            "colon_suffix",
+            "underline",
+            "plain"
+          ]
+        },
+        "section_separator": {
+          "enum": [
+            "blank_line",
+            "double_blank_line",
+            "horizontal_rule",
+            "none"
+          ]
+        },
+        "bullet_glyph": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "numbering_scheme": {
+          "enum": [
+            "none",
+            "arabic",
+            "decimal_outline",
+            "roman",
+            "lettered"
+          ]
+        },
+        "indentation": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "line_width_chars": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "emphasis_use": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "description": "What gets bolded/capitalized/underlined mid-text, and why.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "device": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "applied_to": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "device",
+              "applied_to"
+            ]
+          },
+          "examples": [
+            [
+              {
+                "device": "bold",
+                "applied_to": "critical findings"
+              },
+              {
+                "device": "ALL CAPS",
+                "applied_to": "final diagnosis line"
+              }
+            ]
+          ]
+        },
+        "tables": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "section_key": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "purpose": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "examples": [
+                  "measurements",
+                  "lab panel",
+                  "lesion inventory",
+                  "staging summary"
+                ]
+              },
+              "columns_verbatim": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "row_labels_verbatim": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "row_order_basis": {
+                "enum": [
+                  "fixed_template",
+                  "anatomic",
+                  "by_severity",
+                  "as_encountered"
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "section_key",
+              "purpose",
+              "columns_verbatim",
+              "row_labels_verbatim",
+              "row_order_basis"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "heading_case",
+        "heading_decoration",
+        "section_separator",
+        "bullet_glyph",
+        "numbering_scheme",
+        "indentation",
+        "line_width_chars",
+        "emphasis_use",
+        "tables"
+      ]
+    },
+    "prose": {
+      "type": "object",
+      "properties": {
+        "voice": {
+          "enum": [
+            "passive_dominant",
+            "active_dominant",
+            "mixed"
+          ]
+        },
+        "person": {
+          "enum": [
+            "third_person_impersonal",
+            "first_person_singular",
+            "first_person_plural",
+            "mixed"
+          ]
+        },
+        "tense": {
+          "enum": [
+            "present",
+            "past",
+            "mixed"
+          ]
+        },
+        "subject_reference": {
+          "enum": [
+            "the_patient",
+            "title_surname",
+            "this_age_sex_patient",
+            "the_specimen",
+            "none",
+            "mixed"
+          ]
+        },
+        "mean_sentence_words": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "max_sentence_words": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "sentence_fragments_used": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "hedges_used_verbatim": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "cannot be excluded",
+              "favor",
+              "compatible with",
+              "no definite evidence of"
+            ]
+          ]
+        },
+        "certainty_ladder_verbatim": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "description": "Ordered expressions of diagnostic confidence, weakest to strongest, as this author uses them.",
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "cannot be excluded",
+              "possible",
+              "suspicious for",
+              "favor",
+              "consistent with",
+              "diagnostic of"
+            ]
+          ]
+        },
+        "recurring_phrases_verbatim": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "description": "Idiosyncratic constructions reused across sections. Highest-signal field in this object.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "voice",
+        "person",
+        "tense",
+        "subject_reference",
+        "mean_sentence_words",
+        "max_sentence_words",
+        "sentence_fragments_used",
+        "hedges_used_verbatim",
+        "certainty_ladder_verbatim",
+        "recurring_phrases_verbatim"
+      ]
+    },
+    "lexicon": {
+      "type": "object",
+      "properties": {
+        "abbreviation_policy": {
+          "enum": [
+            "expand_on_first_use",
+            "always_abbreviate",
+            "always_expand",
+            "mixed"
+          ]
+        },
+        "terms_used_verbatim": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "description": "Which surface form was chosen for each concept the author had options for.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "concept": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "examples": [
+                  "neoplasm",
+                  "unremarkable_finding",
+                  "ejection_fraction"
+                ]
+              },
+              "as_written": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "examples": [
+                  "mass",
+                  "within normal limits",
+                  "LVEF"
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "concept",
+              "as_written"
+            ]
+          }
+        },
+        "graded_vocabularies": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "description": "Any ordinal scale the author applies \u2014 severity adjectives, tumor grades, structured categories, functional scores.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "applies_to": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "examples": [
+                  "lesion suspicion",
+                  "tumor differentiation",
+                  "inflammation",
+                  "symptom severity"
+                ]
+              },
+              "scale_type": {
+                "enum": [
+                  "adjectival",
+                  "numeric",
+                  "named_system",
+                  "letter"
+                ]
+              },
+              "system_name": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "examples": [
+                  "BI-RADS",
+                  "Gleason",
+                  "TNM",
+                  "LI-RADS",
+                  "PI-RADS",
+                  "GCS",
+                  "DSM-5",
+                  "Bethesda"
+                ]
+              },
+              "terms_as_written": {
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                },
+                "examples": [
+                  [
+                    "trivial",
+                    "mild",
+                    "mild-to-moderate",
+                    "moderate",
+                    "severe"
+                  ]
+                ]
+              },
+              "intermediate_grades_used": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "paired_with_evidence": {
+                "type": [
+                  "boolean",
+                  "null"
+                ],
+                "description": "Does the grade always come with the measurement or observation justifying it?"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "applies_to",
+              "scale_type",
+              "system_name",
+              "terms_as_written",
+              "intermediate_grades_used",
+              "paired_with_evidence"
+            ]
+          }
+        },
+        "coding_systems_cited": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "ICD-10",
+              "SNOMED CT",
+              "CPT",
+              "ICD-O"
+            ]
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "abbreviation_policy",
+        "terms_used_verbatim",
+        "graded_vocabularies",
+        "coding_systems_cited"
+      ]
+    },
+    "quantitative": {
+      "type": "object",
+      "description": "How numbers appear. Applies to measurements, counts, scores, lab values alike.",
+      "properties": {
+        "units_by_quantity": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "string"
+          },
+          "examples": [
+            {
+              "linear": "cm",
+              "mass": "g",
+              "concentration": "mg/dL",
+              "time": "min"
+            }
+          ]
+        },
+        "decimal_places_by_quantity": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": "integer"
+          }
+        },
+        "value_style": {
+          "enum": [
+            "point_estimate",
+            "range",
+            "range_plus_qualitative",
+            "qualitative_only",
+            "mixed"
+          ]
+        },
+        "dimension_notation": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "examples": [
+            "3.2 x 2.1 x 1.8 cm",
+            "3.2 cm (AP) by 2.1 cm (TV)"
+          ]
+        },
+        "reference_ranges_shown": {
+          "enum": [
+            "always",
+            "abnormal_only",
+            "never"
+          ]
+        },
+        "normalization_shown": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Indexing to body size, age, or population norms \u2014 whether and which.",
+          "examples": [
+            "BSA-indexed",
+            "age-adjusted percentile",
+            "z-score",
+            "none"
+          ]
+        },
+        "value_placement": {
+          "enum": [
+            "inline_prose",
+            "table",
+            "both",
+            "appendix_block"
+          ]
+        },
+        "notation_examples": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "date_format": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "examples": [
+            "DD/MM/YYYY",
+            "DD-Mon-YYYY"
+          ]
+        },
+        "all_values_reported": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Every measured value stated, or only the abnormal/relevant ones?"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "units_by_quantity",
+        "decimal_places_by_quantity",
+        "value_style",
+        "dimension_notation",
+        "reference_ranges_shown",
+        "normalization_shown",
+        "value_placement",
+        "notation_examples",
+        "date_format",
+        "all_values_reported"
+      ]
+    },
+    "content_rules": {
+      "type": "object",
+      "properties": {
+        "normal_findings_handling": {
+          "enum": [
+            "enumerate_each_item",
+            "grouped_normality_statement",
+            "omitted",
+            "mixed"
+          ]
+        },
+        "normal_statements_verbatim": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "description": "Canned normal sentences. Reuse literally at generation; never paraphrase.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "applies_to": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "examples": [
+                  "pericardium",
+                  "lung bases",
+                  "surgical margins",
+                  "cranial nerves"
+                ]
+              },
+              "verbatim": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "examples": [
+                  "No pericardial effusion is seen.",
+                  "Margins are free of tumor."
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "applies_to",
+              "verbatim"
+            ]
+          }
+        },
+        "pertinent_negatives_stated": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "negatives_driven_by": {
+          "enum": [
+            "indication",
+            "fixed_checklist",
+            "not_used"
+          ]
+        },
+        "comparison_to_prior": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "present": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "prior_existed": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "location": {
+              "enum": [
+                "own_section",
+                "within_observations",
+                "within_conclusion"
+              ]
+            },
+            "phrasing_verbatim": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "examples": [
+                "Compared with the study of {date}, "
+              ]
+            },
+            "interval_change_quantified": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "present",
+            "prior_existed",
+            "location",
+            "phrasing_verbatim",
+            "interval_change_quantified"
+          ]
+        },
+        "external_standards_cited": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "examples": [
+            [
+              "ACR Appropriateness Criteria",
+              "WHO Classification 2022",
+              "ESC/EACTS 2021",
+              "CAP protocol"
+            ]
+          ]
+        },
+        "limitations_statement_verbatim": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Quality, adequacy, sampling, or technical constraints."
+        },
+        "incidental_findings_location": {
+          "enum": [
+            "observations",
+            "conclusion",
+            "separate_section",
+            "absent"
+          ]
+        },
+        "critical_finding_handling": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "flagged_in_document": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "phrasing_verbatim": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "communication_note_included": {
+              "type": [
+                "boolean",
+                "null"
+              ],
+              "description": "e.g. 'Findings discussed with Dr. X at 14:20.'"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "flagged_in_document",
+            "phrasing_verbatim",
+            "communication_note_included"
+          ]
+        },
+        "recommendations": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "present": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "directiveness": {
+              "enum": [
+                "directive",
+                "suggestive",
+                "conditional",
+                "defers_to_referrer"
+              ]
+            },
+            "interval_or_timeframe_given": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "phrasing_verbatim": {
+              "type": [
+                "array",
+                "null"
+              ],
+              "items": {
+                "type": "string"
+              },
+              "examples": [
+                [
+                  "Recommend follow-up imaging in 6 months.",
+                  "Clinical correlation is advised."
+                ]
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "present",
+            "directiveness",
+            "interval_or_timeframe_given",
+            "phrasing_verbatim"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "normal_findings_handling",
+        "normal_statements_verbatim",
+        "pertinent_negatives_stated",
+        "negatives_driven_by",
+        "comparison_to_prior",
+        "external_standards_cited",
+        "limitations_statement_verbatim",
+        "incidental_findings_location",
+        "critical_finding_handling",
+        "recommendations"
+      ]
+    },
+    "conclusion": {
+      "type": "object",
+      "description": "The terminal interpretive section \u2014 impression, conclusion, assessment, final diagnosis, summary. Extracted separately because it's the most format-constrained and most read.",
+      "properties": {
+        "label_verbatim": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "examples": [
+            "IMPRESSION:",
+            "CONCLUSION",
+            "FINAL DIAGNOSIS",
+            "ASSESSMENT AND PLAN"
+          ]
+        },
+        "format": {
+          "enum": [
+            "numbered_list",
+            "bulleted_list",
+            "single_paragraph",
+            "multi_paragraph",
+            "single_line_diagnosis"
+          ]
+        },
+        "item_count": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "ordering": {
+          "enum": [
+            "by_clinical_significance",
+            "mirrors_observations_order",
+            "answers_question_first",
+            "anatomic",
+            "template_fixed"
+          ]
+        },
+        "item_style": {
+          "enum": [
+            "noun_phrase",
+            "full_sentence",
+            "finding_plus_interpretation",
+            "diagnosis_line"
+          ]
+        },
+        "evidence_restated": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Are key numbers/observations repeated here, or only referenced?"
+        },
+        "answers_stated_question": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "differential_included": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "differential_style": {
+          "enum": [
+            "ranked",
+            "unranked",
+            "single_favored_plus_alternatives",
+            "absent"
+          ]
+        },
+        "items_verbatim": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "unremarkable_case_statement_verbatim": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "examples": [
+            "Normal study.",
+            "No malignancy identified."
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "label_verbatim",
+        "format",
+        "item_count",
+        "ordering",
+        "item_style",
+        "evidence_restated",
+        "answers_stated_question",
+        "differential_included",
+        "differential_style",
+        "items_verbatim",
+        "unremarkable_case_statement_verbatim"
+      ]
+    },
+    "fixed_blocks": {
+      "type": "object",
+      "description": "Copy verbatim at generation; do not let a model paraphrase these.",
+      "properties": {
+        "header_verbatim": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "identification_line_template": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "examples": [
+            "{age}-year-old {sex}    MRN: {mrn}    Date: {date}"
+          ]
+        },
+        "footer_verbatim": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "disclaimer_verbatim": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "attestation_verbatim": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "signature_verbatim": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "addendum_convention": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "How amendments are appended and labeled."
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "header_verbatim",
+        "identification_line_template",
+        "footer_verbatim",
+        "disclaimer_verbatim",
+        "attestation_verbatim",
+        "signature_verbatim",
+        "addendum_convention"
+      ]
+    },
+    "domain_specific_conventions": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "description": "Escape hatch. Any reproducible formatting rule the fields above don't capture \u2014 pathology synoptic checklists, psychiatric MSE ordering, ophthalmic OD/OS column layout, obstetric biometry blocks, sleep-study index tables. Prefer adding here over distorting a fixed field.",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "applies_to_section",
+          "verbatim_example",
+          "reproduction_rule"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "applies_to_section": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "verbatim_example": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reproduction_rule": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Stated as an instruction a generator can follow."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "full_text": {
+      "type": "string",
+      "description": "The de-identified document itself, kept as a few-shot exemplar. Reproduces format better than any field above; the fields cover what a single sample doesn't happen to demonstrate."
+    },
+    "case_character": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "finding_burden": {
+          "enum": [
+            "unremarkable",
+            "minor_findings",
+            "significant_findings",
+            "complex_multisystem"
+          ]
+        },
+        "technically_limited": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Which conventions this sample actually exercised \u2014 and which it therefore says nothing about."
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "finding_burden",
+        "technically_limited",
+        "note"
+      ]
+    }
+  },
+  "additionalProperties": false
+}
