@@ -9,11 +9,25 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+enum AnalysisStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
 model File {
   id           String   @id @default(uuid())
   originalName String
-  storedName   String   // the uuid-based filename on disk (id + extension)
+  storedName   String
   mimeType     String
   size         Int
   uploadedAt   DateTime @default(now())
+
+  analysis       String?
+  analysisStatus AnalysisStatus @default(PENDING)
+  analysisError  String?
+  analyzedAt     DateTime?
+
+  @@index([analysisStatus])
 }
