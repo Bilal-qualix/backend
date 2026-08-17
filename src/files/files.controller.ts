@@ -2,6 +2,8 @@ import {
   BadRequestException,
   Controller,
   Logger,
+  NotFoundException,
+  Param,
   Post,
   Get,
   Req,
@@ -14,9 +16,10 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { FilesService } from './files.service';
+import { uploadDir } from './upload.constants';
 
 export const storage = diskStorage({
-  destination: './uploads', 
+  destination: uploadDir(),
   filename: (req, file, callback) => {
     const uniqueId = uuidv4();
     const ext = extname(file.originalname); // e.g. ".pdf"
@@ -52,16 +55,41 @@ export class FilesController {
       );
     }
 
-    return this.filesService.create({
+    // The file is already on disk by the time we get here (multer wrote it),
+    // so this row is the durable record of it before anything else happens.
+    const saved = await this.filesService.create({
       originalName: file.originalname,
       storedName: file.filename, // uuid + extension, set by diskStorage above
       mimeType: file.mimetype,
       size: file.size,
     });
+
+    // Deliberately not awaited: the client gets its response now, and the
+    // analysis result lands on the row later. analyze() reports its own
+    // failures via analysisStatus; the catch is a backstop so an unexpected
+    // throw can never become an unhandled rejection.
+    void this.filesService.analyze(saved.id).catch((error) => {
+      this.logger.error(
+        `Background analysis for file ${saved.id} threw: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    });
+
+    return saved;
   }
 
   @Get()
   async findAll() {
     return this.filesService.findAll();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    const file = await this.filesService.findOne(id);
+    if (!file) {
+      throw new NotFoundException(`No file with id ${id}`);
+    }
+    return file;
   }
 }
